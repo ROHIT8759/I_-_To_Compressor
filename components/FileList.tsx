@@ -67,12 +67,12 @@ export default function FileList({ files, onRemove }: FileListProps) {
                                         {/* Status pill */}
                                         <span
                                             className={`ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full ${f.status === 'compressed'
-                                                    ? 'bg-emerald-500/20 text-emerald-400'
-                                                    : f.status === 'error'
-                                                        ? 'bg-red-500/20 text-red-400'
-                                                        : f.status === 'compressing'
-                                                            ? 'bg-amber-500/20 text-amber-400'
-                                                            : 'bg-indigo-500/20 text-indigo-300'
+                                                ? 'bg-emerald-500/20 text-emerald-400'
+                                                : f.status === 'error'
+                                                    ? 'bg-red-500/20 text-red-400'
+                                                    : f.status === 'compressing'
+                                                        ? 'bg-amber-500/20 text-amber-400'
+                                                        : 'bg-indigo-500/20 text-indigo-300'
                                                 }`}
                                         >
                                             {f.status === 'uploaded'
@@ -88,7 +88,7 @@ export default function FileList({ files, onRemove }: FileListProps) {
                                     </div>
 
                                     {/* Progress bar (per-file) */}
-                                    {(f.status === 'uploading' || f.status === 'compressing') && (
+                                    {f.status === 'compressing' && (
                                         <div className="mt-1.5 h-1 rounded-full bg-slate-700 overflow-hidden">
                                             <motion.div
                                                 className="h-full bg-indigo-500 rounded-full"
