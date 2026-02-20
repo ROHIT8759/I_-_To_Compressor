@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
+import TrackingProvider from '@/components/providers/tracking-provider';
 
 export const metadata: Metadata = {
   title: 'Compraser – Compress Files Instantly Without Losing Quality',
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {children}
+          <TrackingProvider />
           <Toaster
             position="top-right"
             theme="dark"
