@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import './globals.css';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
@@ -30,7 +31,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {children}
-          <TrackingProvider />
+          <Suspense fallback={null}>
+            <TrackingProvider />
+          </Suspense>
           <Toaster
             position="top-right"
             theme="dark"

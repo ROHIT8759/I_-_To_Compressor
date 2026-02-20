@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 type ConsentState = 'granted' | 'denied' | 'unknown';
@@ -119,7 +119,8 @@ async function sendPageView(path: string) {
   });
 }
 
-export default function TrackingProvider() {
+// Inner component that uses useSearchParams – must be wrapped in <Suspense>
+function TrackingProviderInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [consent, setConsent] = useState<ConsentState>('unknown');
@@ -205,5 +206,15 @@ export default function TrackingProvider() {
         </button>
       </div>
     </div>
+  );
+}
+
+// Outer component wraps the inner one in Suspense so Next.js can statically
+// prerender pages that contain this provider (required for useSearchParams).
+export default function TrackingProvider() {
+  return (
+    <Suspense fallback={null}>
+      <TrackingProviderInner />
+    </Suspense>
   );
 }
