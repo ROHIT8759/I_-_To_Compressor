@@ -3,7 +3,9 @@ import { Suspense } from 'react';
 import './globals.css';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import TrackingProvider from '@/components/providers/tracking-provider';
+import WebVitalsReporter from '@/components/providers/web-vitals-reporter';
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
@@ -107,6 +109,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Suspense fallback={null}>
             <TrackingProvider />
           </Suspense>
+          <WebVitalsReporter />
+          <SpeedInsights />
           <Toaster
             position="top-right"
             theme="dark"

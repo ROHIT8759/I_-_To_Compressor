@@ -82,7 +82,7 @@ export default function SEOContent() {
                     <div className="border-b border-slate-800 pb-4">
                         <h3 className="font-medium text-slate-200 mb-2">Does compression affect quality?</h3>
                         <p className="text-slate-400 text-sm">
-                            Our "Smart Compression" (default) is designed to reduce file size by removing redundant data without noticeable quality loss. You can also adjust the compression level manually if you need smaller files or higher quality.
+                            Our &quot;Smart Compression&quot; (default) is designed to reduce file size by removing redundant data without noticeable quality loss. You can also adjust the compression level manually if you need smaller files or higher quality.
                         </p>
                     </div>
                 </div>
