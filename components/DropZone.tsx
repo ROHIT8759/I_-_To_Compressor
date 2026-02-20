@@ -44,7 +44,7 @@ export default function DropZone({ onFilesAccepted, disabled = false }: DropZone
         onDrop,
         noClick: disabled,
         noDrag: disabled,
-        accept: Object.fromEntries(ALLOWED_MIME_TYPES.map((t) => [t, []])),
+        accept: Object.fromEntries(Array.from(ALLOWED_MIME_TYPES).map((t) => [t, []])),
         maxSize: MAX_FILE_SIZE,
         multiple: true,
     });

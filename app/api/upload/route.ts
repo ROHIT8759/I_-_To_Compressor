@@ -16,11 +16,11 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Validation ────────────────────────────────────────────────────────────
-    const ext = `.${file.name.split('.').pop()?.toLowerCase()}`;
-    if (BLOCKED_EXTENSIONS.includes(ext)) {
-      return NextResponse.json({ error: `File type "${ext}" is not allowed.` }, { status: 400 });
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+    if (BLOCKED_EXTENSIONS.has(ext)) {
+      return NextResponse.json({ error: `File type ".${ext}" is not allowed.` }, { status: 400 });
     }
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+    if (!ALLOWED_MIME_TYPES.has(file.type)) {
       return NextResponse.json({ error: `MIME type "${file.type}" is not supported.` }, { status: 400 });
     }
     if (file.size > MAX_FILE_SIZE) {

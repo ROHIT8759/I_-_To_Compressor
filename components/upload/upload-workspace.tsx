@@ -226,63 +226,64 @@ export function UploadWorkspace() {
         </div>
       </div>
 
-      <motion.div
-        {...getRootProps()}
-        whileHover={{ scale: 1.005 }}
-        className={cn(
-          "cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center transition-all md:p-12",
-          isDragActive
-            ? "border-brand-500 bg-brand-50/60 dark:bg-brand-900/20"
-            : "border-slate-300 bg-white/70 hover:border-brand-400 dark:border-slate-600 dark:bg-slate-800/60",
-        )}
-      >
-        <input {...getInputProps()} />
-        <input
-          ref={folderInputRef}
-          className="hidden"
-          type="file"
-          multiple
-          onChange={(event) => {
-            const selected = Array.from(event.currentTarget.files || []);
-            onSelectFiles(selected);
-            event.currentTarget.value = "";
-          }}
-          // @ts-expect-error webkitdirectory is browser-specific but required for folder upload.
-          webkitdirectory=""
-          // @ts-expect-error directory is browser-specific but required for folder upload.
-          directory=""
-        />
-        <motion.div
-          animate={{ y: isDragActive ? -2 : 0 }}
-          transition={{ type: "spring", stiffness: 280, damping: 20 }}
-          className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-700 dark:bg-brand-900/50 dark:text-brand-200"
+      <motion.div whileHover={{ scale: 1.005 }}>
+        <div
+          {...getRootProps()}
+          className={cn(
+            "cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center transition-all md:p-12",
+            isDragActive
+              ? "border-brand-500 bg-brand-50/60 dark:bg-brand-900/20"
+              : "border-slate-300 bg-white/70 hover:border-brand-400 dark:border-slate-600 dark:bg-slate-800/60",
+          )}
         >
-          <Upload className="h-7 w-7" />
-        </motion.div>
-        <p className="text-lg font-medium text-slate-900 dark:text-slate-100">
-          {isDragActive ? "Drop files to upload" : "Drag and drop files here"}
-        </p>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Supports PDF, JPG, PNG, DOCX, MP4, ZIP and more (up to 100MB per file)
-        </p>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <button
-            type="button"
-            className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
-          >
-            Select Files
-          </button>
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              openFolderPicker();
+
+          <input {...getInputProps()} />
+          <input
+            ref={folderInputRef}
+            className="hidden"
+            type="file"
+            multiple
+            onChange={(event) => {
+              const selected = Array.from(event.currentTarget.files || []);
+              onSelectFiles(selected);
+              event.currentTarget.value = "";
             }}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            // @ts-expect-error webkitdirectory is browser-specific but required for folder upload.
+            webkitdirectory=""
+            directory=""
+          />
+          <motion.div
+            animate={{ y: isDragActive ? -2 : 0 }}
+            transition={{ type: "spring", stiffness: 280, damping: 20 }}
+            className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-700 dark:bg-brand-900/50 dark:text-brand-200"
           >
-            <FolderUp className="h-4 w-4" />
-            Upload Folder
-          </button>
+            <Upload className="h-7 w-7" />
+          </motion.div>
+          <p className="text-lg font-medium text-slate-900 dark:text-slate-100">
+            {isDragActive ? "Drop files to upload" : "Drag and drop files here"}
+          </p>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+            Supports PDF, JPG, PNG, DOCX, MP4, ZIP and more (up to 100MB per file)
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+            >
+              Select Files
+            </button>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                openFolderPicker();
+              }}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            >
+              <FolderUp className="h-4 w-4" />
+              Upload Folder
+            </button>
+          </div>
         </div>
       </motion.div>
 

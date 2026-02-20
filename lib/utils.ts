@@ -35,11 +35,11 @@ export function savedPercent(originalSize: number, compressedSize: number): numb
  * Returns null if valid, or an error message string.
  */
 export function validateFile(file: File): string | null {
-  const ext = `.${file.name.split('.').pop()?.toLowerCase()}`;
-  if (BLOCKED_EXTENSIONS.includes(ext)) {
-    return `File type "${ext}" is not allowed for security reasons.`;
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+  if (BLOCKED_EXTENSIONS.has(ext)) {
+    return `File type ".${ext}" is not allowed for security reasons.`;
   }
-  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+  if (!ALLOWED_MIME_TYPES.has(file.type)) {
     return `File type "${file.type || ext}" is not supported.`;
   }
   if (file.size > MAX_FILE_SIZE) {
@@ -62,3 +62,28 @@ export function fileTypeIcon(mimeType: string): string {
   if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return '📋';
   return '📁';
 }
+
+/**
+ * Extracts the lowercase file extension without the leading dot.
+ * e.g. "photo.JPG" → "jpg"
+ */
+export function getExtension(filename: string): string {
+  return filename.split('.').pop()?.toLowerCase() ?? '';
+}
+
+/**
+ * Normalises a relative file path coming from webkitRelativePath.
+ * Converts backslashes, collapses double slashes, trims leading slash.
+ */
+export function sanitizeFilePath(path: string): string {
+  return path
+    .replace(/\\/g, '/')
+    .replace(/\/+/g, '/')
+    .replace(/^\//, '');
+}
+
+/** Alias kept for backward compat with cn() usage in workspace */
+export function cn(...classes: (string | undefined | null | false)[]): string {
+  return classes.filter(Boolean).join(' ');
+}
+
