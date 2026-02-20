@@ -13,6 +13,7 @@ import ProgressBar from '@/components/ProgressBar';
 import SizeComparison from '@/components/SizeComparison';
 import SuccessAnimation from '@/components/SuccessAnimation';
 
+import SEOContent from '@/components/SEOContent';
 import type { UploadedFile, CompressionState } from '@/types';
 import { COMPRESSION_DEFAULT } from '@/lib/constants';
 
@@ -446,6 +447,8 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      <SEOContent />
 
       {/* ── Footer ───────────────────────────────────────────────── */}
       <footer>
