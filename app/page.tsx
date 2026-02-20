@@ -16,6 +16,56 @@ import SuccessAnimation from '@/components/SuccessAnimation';
 import SEOContent from '@/components/SEOContent';
 import type { UploadedFile, CompressionState } from '@/types';
 import { COMPRESSION_DEFAULT } from '@/lib/constants';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ilovetocompraser.vercel.app';
+
+const webPageJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Compraser - Compress Files Instantly Without Losing Quality',
+  description:
+    'Compress PDFs, images, videos and documents online with secure temporary storage and automatic cleanup.',
+  url: siteUrl,
+  inLanguage: 'en-US',
+};
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Is it safe to compress sensitive documents?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. Files are transferred over HTTPS and automatically deleted after 24 hours.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What file formats do you support?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'We support common formats including PDF, JPG, PNG, MP4, MOV and more.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is there a file size limit?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. The current limit is 100 MB per file.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Does compression affect quality?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Smart Compression is tuned to reduce size while preserving visual quality as much as possible.',
+      },
+    },
+  ],
+};
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -340,6 +390,8 @@ export default function Home() {
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <Navbar />
 
       {/* ── Hero ─────────────────────────────────────────────────── */}
@@ -460,3 +512,5 @@ export default function Home() {
     </>
   );
 }
+
+

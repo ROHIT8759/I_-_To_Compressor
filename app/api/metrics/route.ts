@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSupabaseAdmin } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
 
@@ -21,17 +22,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid metric payload.' }, { status: 400 });
     }
 
-    // Replace this with your analytics sink (DB, queue, APM, etc.).
-    console.info('[web-vitals]', {
-      id: body.id ?? null,
-      name: body.name,
-      value: body.value,
+    const supabase = getSupabaseAdmin();
+    const { error } = await supabase.from('web_vitals_metrics').insert({
+      metric_id: body.id ?? null,
+      metric_name: body.name,
+      metric_value: body.value,
       rating: body.rating ?? null,
       delta: body.delta ?? null,
-      navigationType: body.navigationType ?? null,
-      page: body.page ?? null,
-      ts: body.ts ?? Date.now(),
+      navigation_type: body.navigationType ?? null,
+      page_path: body.page ?? null,
+      referrer: request.headers.get('referer'),
+      user_agent: request.headers.get('user-agent'),
     });
+
+    if (error) {
+      console.error('Metrics DB insert error:', error);
+      return NextResponse.json({ error: 'Failed to persist metrics.' }, { status: 500 });
+    }
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
