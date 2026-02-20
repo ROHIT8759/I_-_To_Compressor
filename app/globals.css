@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -30,9 +28,15 @@
 }
 
 /* ── Base ─────────────────────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
@@ -59,31 +63,56 @@ body {
   opacity: 0.15;
   pointer-events: none;
 }
+
 .blob-1 {
-  width: 600px; height: 600px;
+  width: 600px;
+  height: 600px;
   background: radial-gradient(circle, #6366f1, transparent);
-  top: -200px; left: -200px;
+  top: -200px;
+  left: -200px;
   animation: float1 12s ease-in-out infinite;
 }
+
 .blob-2 {
-  width: 400px; height: 400px;
+  width: 400px;
+  height: 400px;
   background: radial-gradient(circle, #8b5cf6, transparent);
-  top: 100px; right: -100px;
+  top: 100px;
+  right: -100px;
   animation: float2 15s ease-in-out infinite;
 }
+
 .blob-3 {
-  width: 300px; height: 300px;
+  width: 300px;
+  height: 300px;
   background: radial-gradient(circle, #06b6d4, transparent);
-  bottom: -50px; left: 40%;
+  bottom: -50px;
+  left: 40%;
   animation: float1 10s ease-in-out infinite reverse;
 }
+
 @keyframes float1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(30px, 20px) scale(1.05); }
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(30px, 20px) scale(1.05);
+  }
 }
+
 @keyframes float2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-20px, 30px) scale(1.08); }
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-20px, 30px) scale(1.08);
+  }
 }
 
 /* ── Hero Section ────────────────────────────────────────────────────────── */
@@ -96,6 +125,7 @@ body {
   justify-content: center;
   padding: 6rem 1rem 4rem;
 }
+
 .hero-headline {
   font-size: clamp(2.2rem, 6vw, 4.5rem);
   font-weight: 800;
@@ -103,6 +133,7 @@ body {
   letter-spacing: -0.03em;
   color: var(--text);
 }
+
 .hero-sub {
   font-size: 1.1rem;
   color: #94a3b8;
@@ -119,6 +150,7 @@ body {
   -webkit-backdrop-filter: blur(12px);
   transition: border-color 0.2s, background 0.2s;
 }
+
 .glass-card:hover {
   background: var(--surface-hover);
 }
@@ -130,6 +162,7 @@ body {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
+
 .light .glass-nav {
   background: rgba(241, 245, 249, 0.7);
 }
@@ -149,17 +182,26 @@ body {
   animation: dash-rotate 6s linear infinite;
   background-clip: padding-box;
 }
-.dropzone:hover, .dropzone-active {
+
+.dropzone:hover,
+.dropzone-active {
   border-color: #6366f1;
   background: rgba(99, 102, 241, 0.06);
 }
+
 .dropzone-reject {
   border-color: #ef4444 !important;
   background: rgba(239, 68, 68, 0.06) !important;
 }
+
 @keyframes dash-rotate {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 100% 100%; }
+  0% {
+    background-position: 0% 0%;
+  }
+
+  100% {
+    background-position: 100% 100%;
+  }
 }
 
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
@@ -178,9 +220,11 @@ body {
   transition: opacity 0.2s, box-shadow 0.2s;
   box-shadow: 0 0 20px var(--accent-glow);
 }
+
 .btn-primary:hover:not(:disabled) {
   box-shadow: 0 0 30px rgba(99, 102, 241, 0.45);
 }
+
 .btn-primary:disabled {
   opacity: 0.65;
   cursor: not-allowed;
@@ -212,6 +256,7 @@ body {
   cursor: pointer;
   transition: color 0.2s, background 0.2s;
 }
+
 .theme-toggle:hover {
   color: #6366f1;
   background: var(--surface-hover);
@@ -227,6 +272,7 @@ body {
   outline: none;
   cursor: pointer;
 }
+
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 20px;
@@ -238,32 +284,47 @@ body {
   cursor: pointer;
   transition: box-shadow 0.2s;
 }
+
 .slider::-webkit-slider-thumb:hover {
   box-shadow: 0 0 16px var(--accent-glow);
 }
 
 /* ── Custom Scrollbar ────────────────────────────────────────────────────── */
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
 
 /* ── Shimmer ─────────────────────────────────────────────────────────────── */
 .shimmer-bar {
   position: absolute;
-  top: 0; left: -100%;
+  top: 0;
+  left: -100%;
   width: 60%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.08) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      transparent 100%);
   animation: shimmer 1.8s infinite;
 }
+
 @keyframes shimmer {
-  0% { left: -100%; }
-  100% { left: 200%; }
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 200%;
+  }
 }
 
 /* ── Tool Section ────────────────────────────────────────────────────────── */

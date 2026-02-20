@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { NextRequest, NextResponse } from 'next/server';
 import cloudinary, { uploadBufferToCloudinary } from '@/lib/cloudinary';
 import { getSupabaseAdmin } from '@/lib/supabase';
@@ -25,21 +26,21 @@ async function compressImage(buffer: Buffer, mimeType: string, quality: number):
   if (mimeType === 'image/gif') {
     return sharpInstance.gif().toBuffer();
   }
-  // For other image types, try converting to WebP
+  // For other image types, convert to WebP
   return sharpInstance.webp({ quality }).toBuffer();
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { fileId, compressionLevel, publicId, fileType } = body as {
-      fileId: string;
+    const { dbFileId, compressionLevel, publicId, fileType } = body as {
+      dbFileId: string;
       compressionLevel: number; // 10 – 90
       publicId: string;
       fileType: string;
     };
 
-    if (!fileId || !compressionLevel || !publicId) {
+    if (!dbFileId || !compressionLevel || !publicId) {
       return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
     }
     if (compressionLevel < 10 || compressionLevel > 90) {
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
     const { data: record, error: fetchError } = await supabase
       .from('file_uploads')
       .select('*')
-      .eq('id', fileId)
+      .eq('id', dbFileId)
       .single();
 
     if (fetchError || !record) {
@@ -60,7 +61,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Quality mapping: compressionLevel 10 → keep ~90%, 90 → keep ~10% ─────
-    // quality for image encoders: 100 means best, we invert compression level
+    // quality for image encoders: 100 means best quality, we invert
     const imageQuality = Math.max(5, 100 - compressionLevel);
 
     let compressedBuffer: Buffer;
@@ -81,11 +82,9 @@ export async function POST(req: NextRequest) {
       compressedBuffer = await compressImage(originalBuffer, fileType, imageQuality);
       compressedResourceType = 'image';
     } else {
-      // For non-image files (PDF, DOCX, ZIP, etc.) we use Cloudinary's
-      // built-in quality transformation for video/raw files.
-      // For binary formats we can't re-encode generically on the server
-      // without format-specific libraries, so for demo purposes we 
-      // re-upload the same file with compression notation.
+      // For non-image files (PDF, DOCX, ZIP, etc.):
+      // Download and re-upload – true re-encoding requires format-specific libs.
+      // For demo: re-upload original (future: add pdf-lib/ffmpeg for PDFs/video).
       const downloadUrl = cloudinary.url(publicId, {
         resource_type: fileType.startsWith('video/') ? 'video' : 'raw',
         type: 'authenticated',
@@ -116,7 +115,7 @@ export async function POST(req: NextRequest) {
         compressed_public_id: compressed.publicId,
         download_url: compressed.secureUrl,
       })
-      .eq('id', fileId);
+      .eq('id', dbFileId);
 
     return NextResponse.json({
       compressedUrl: compressed.secureUrl,
