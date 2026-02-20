@@ -1,7 +1,8 @@
 export type CompressionState = 'idle' | 'uploading' | 'uploaded' | 'compressing' | 'done' | 'error';
 
 export interface UploadedFile {
-    id: string;           // UUID from Supabase
+    id: string;           // Local client id for UI state
+    dbFileId?: string;    // Supabase file_uploads.id
     file: File;           // Original browser File object
     name: string;
     size: number;         // original bytes

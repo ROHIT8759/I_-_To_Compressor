@@ -132,6 +132,7 @@ export default function Home() {
             ...uf,
             status: 'uploaded',
             progress: 100,
+            dbFileId: res.fileId,
             cloudinaryPublicId: res.publicId,
             cloudinaryUrl: res.url,
           };
@@ -185,12 +186,10 @@ export default function Home() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              fileId: uf.cloudinaryPublicId ? undefined : uf.id, // supabase id
               compressionLevel,
               publicId: uf.cloudinaryPublicId,
               fileType: uf.type,
-              // We pass the supabase DB id separately
-              dbFileId: uf.id,
+              dbFileId: uf.dbFileId,
             }),
           });
 
@@ -256,7 +255,8 @@ export default function Home() {
     try {
       const ids = files
         .filter((f) => f.status === 'compressed')
-        .map((f) => f.id);
+        .map((f) => f.dbFileId)
+        .filter((id): id is string => Boolean(id));
 
       if (ids.length === 0) {
         toast.error('No compressed files to download.');
@@ -271,13 +271,24 @@ export default function Home() {
 
       if (!res.ok) throw new Error('Download failed');
 
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'compraser_files.zip';
-      a.click();
-      URL.revokeObjectURL(url);
+      const data = (await res.json()) as {
+        files?: Array<{ id: string; fileName: string; fileType: string; url: string }>;
+      };
+
+      const downloadFiles = data.files ?? [];
+      if (downloadFiles.length === 0) {
+        throw new Error('No downloadable files found.');
+      }
+
+      for (const file of downloadFiles) {
+        const a = document.createElement('a');
+        a.href = file.url;
+        a.download = file.fileName;
+        a.rel = 'noopener noreferrer';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Download failed';
       toast.error(message);
@@ -420,8 +431,9 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex justify-center pt-2"
+              className="flex flex-col items-center gap-2 pt-2"
             >
+              <p className="text-xs text-slate-400">Max file size: 100 MB per file</p>
               <motion.button
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}

@@ -2,32 +2,74 @@
 import { NextRequest, NextResponse } from 'next/server';
 import cloudinary, { uploadBufferToCloudinary } from '@/lib/cloudinary';
 import { getSupabaseAdmin } from '@/lib/supabase';
+import { MAX_FILE_SIZE } from '@/lib/constants';
 import sharp from 'sharp';
 
 export const maxDuration = 120;
 export const runtime = 'nodejs';
 
 /**
- * Compresses image buffers with Sharp.
- * quality is 0-100 where lower = more compression.
+ * Non-linear quality curve:
+ * keeps quality higher in low-mid compression and drops faster near max compression.
+ * Input compressionLevel: 10-90
+ */
+function mapCompressionLevelToImageQuality(compressionLevel: number) {
+  const t = (compressionLevel - 10) / 80;
+  const curved = Math.pow(Math.min(Math.max(t, 0), 1), 1.35);
+  return Math.round(92 - 55 * curved); // ~92..37
+}
+
+function formatMb(bytes: number) {
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/**
+ * Compresses images with format-aware settings that favor perceived quality.
  */
 async function compressImage(buffer: Buffer, mimeType: string, quality: number): Promise<Buffer> {
-  const sharpInstance = sharp(buffer);
+  const base = sharp(buffer, { failOn: 'none' }).rotate();
 
   if (mimeType === 'image/jpeg' || mimeType === 'image/jpg') {
-    return sharpInstance.jpeg({ quality }).toBuffer();
+    return base
+      .jpeg({
+        quality,
+        mozjpeg: true,
+        progressive: true,
+        chromaSubsampling: quality >= 78 ? '4:4:4' : '4:2:0',
+      })
+      .toBuffer();
   }
+
   if (mimeType === 'image/png') {
-    return sharpInstance.png({ compressionLevel: Math.round((100 - quality) / 11.1) }).toBuffer();
+    return base
+      .png({
+        compressionLevel: 9,
+        effort: 10,
+        palette: true,
+        quality,
+      })
+      .toBuffer();
   }
+
   if (mimeType === 'image/webp') {
-    return sharpInstance.webp({ quality }).toBuffer();
+    return base
+      .webp({
+        quality,
+        effort: 6,
+      })
+      .toBuffer();
   }
+
   if (mimeType === 'image/gif') {
-    return sharpInstance.gif().toBuffer();
+    return base.gif().toBuffer();
   }
-  // For other image types, convert to WebP
-  return sharpInstance.webp({ quality }).toBuffer();
+
+  return base
+    .webp({
+      quality,
+      effort: 6,
+    })
+    .toBuffer();
 }
 
 export async function POST(req: NextRequest) {
@@ -35,7 +77,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { dbFileId, compressionLevel, publicId, fileType } = body as {
       dbFileId: string;
-      compressionLevel: number; // 10 – 90
+      compressionLevel: number;
       publicId: string;
       fileType: string;
     };
@@ -49,7 +91,6 @@ export async function POST(req: NextRequest) {
 
     const supabase = getSupabaseAdmin();
 
-    // ── Fetch original file from Supabase to validate ─────────────────────────
     const { data: record, error: fetchError } = await supabase
       .from('file_uploads')
       .select('*')
@@ -59,17 +100,22 @@ export async function POST(req: NextRequest) {
     if (fetchError || !record) {
       return NextResponse.json({ error: 'File record not found.' }, { status: 404 });
     }
+    if (record.original_size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        {
+          error: `This file is too large to compress (${formatMb(record.original_size)}). Max supported size is ${formatMb(MAX_FILE_SIZE)}.`,
+        },
+        { status: 413 }
+      );
+    }
 
-    // ── Quality mapping: compressionLevel 10 → keep ~90%, 90 → keep ~10% ─────
-    // quality for image encoders: 100 means best quality, we invert
-    const imageQuality = Math.max(5, 100 - compressionLevel);
+    const imageQuality = mapCompressionLevelToImageQuality(compressionLevel);
 
     let compressedBuffer: Buffer;
     let compressedResourceType: 'image' | 'video' | 'raw' = 'raw';
     const isImage = fileType?.startsWith('image/');
 
     if (isImage) {
-      // Download original from Cloudinary
       const downloadUrl = cloudinary.url(publicId, {
         resource_type: 'image',
         type: 'authenticated',
@@ -82,9 +128,6 @@ export async function POST(req: NextRequest) {
       compressedBuffer = await compressImage(originalBuffer, fileType, imageQuality);
       compressedResourceType = 'image';
     } else {
-      // For non-image files (PDF, DOCX, ZIP, etc.):
-      // Download and re-upload – true re-encoding requires format-specific libs.
-      // For demo: re-upload original (future: add pdf-lib/ffmpeg for PDFs/video).
       const downloadUrl = cloudinary.url(publicId, {
         resource_type: fileType.startsWith('video/') ? 'video' : 'raw',
         type: 'authenticated',
@@ -96,18 +139,14 @@ export async function POST(req: NextRequest) {
       compressedResourceType = fileType.startsWith('video/') ? 'video' : 'raw';
     }
 
-    // ── Upload compressed file to Cloudinary ─────────────────────────────────
     const compressed = await uploadBufferToCloudinary(compressedBuffer, {
       folder: 'compraser/compressed',
       resourceType: compressedResourceType,
     });
 
     const compressedSize = compressedBuffer.byteLength;
-    const savedPercent = Math.round(
-      ((record.original_size - compressedSize) / record.original_size) * 100
-    );
+    const savedPercent = Math.round(((record.original_size - compressedSize) / record.original_size) * 100);
 
-    // ── Update Supabase record ────────────────────────────────────────────────
     await supabase
       .from('file_uploads')
       .update({
