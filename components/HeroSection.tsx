@@ -48,6 +48,7 @@ export default function HeroSection({ onScrollToTool }: HeroSectionProps) {
                     transition={{ duration: 0.6, delay: 0.2 }}
                     className="hero-sub max-w-2xl mx-auto"
                 >
+                    Compress as much as you need, whenever you need it.
                     Securely compress PDFs, images, videos and more in seconds.
                     Your files are encrypted in transit, stored temporarily, and auto-deleted in 24 hours.
                 </motion.p>
